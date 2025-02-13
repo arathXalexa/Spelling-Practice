@@ -1,0 +1,134 @@
+/spelling-practice-app
+  ├── index.html
+  ├── style.css
+  ├── script.js
+  ├── words.json  (optional for word storage)
+  ├── sounds/
+      ├── correct.mp3
+      ├── incorrect.mp3
+1️⃣ index.html (Main HTML file)
+html
+Copy
+Edit
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spelling Practice App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Spelling Practice</h1>
+        
+        <label for="difficulty">Select Difficulty:</label>
+        <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+        </select>
+        
+        <button id="start">Start</button>
+        <p id="word-hint"></p>
+        
+        <input type="text" id="user-input" placeholder="Type the word here">
+        <button id="submit">Submit</button>
+        
+        <p id="feedback"></p>
+        <p>Score: <span id="score">0</span></p>
+        <p>High Score: <span id="high-score">0</span></p>
+
+        <button id="login">Login</button>
+        <button id="leaderboard">View Leaderboard</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+2️⃣ style.css (Styling)
+css
+Copy
+Edit
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f4f4f4;
+}
+
+.container {
+    background: white;
+    padding: 20px;
+    margin: 50px auto;
+    width: 50%;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px gray;
+}
+
+button {
+    padding: 10px;
+    margin: 10px;
+    cursor: pointer;
+}
+
+input {
+    padding: 10px;
+}
+3️⃣ script.js (Game Logic)
+js
+Copy
+Edit
+const words = {
+    easy: ["apple", "banana", "grape", "orange", "lemon"],
+    medium: ["pencil", "guitar", "planet", "bridge", "tunnel"],
+    hard: ["elephant", "dolphin", "mountain", "whistle", "sunflower"]
+};
+
+let currentWord = "";
+let score = 0;
+let highScore = localStorage.getItem("highScore") || 0;
+
+document.getElementById("high-score").textContent = highScore;
+
+document.getElementById("start").addEventListener("click", function() {
+    let difficulty = document.getElementById("difficulty").value;
+    let wordList = words[difficulty];
+    currentWord = wordList[Math.floor(Math.random() * wordList.length)];
+
+    // Provide hint
+    document.getElementById("word-hint").textContent = `Hint: ${currentWord[0]} (${currentWord.length} letters)`;
+    
+    // Speak the word
+    let speech = new SpeechSynthesisUtterance(currentWord);
+    speechSynthesis.speak(speech);
+});
+
+document.getElementById("submit").addEventListener("click", function() {
+    let userInput = document.getElementById("user-input").value.toLowerCase();
+    let feedback = document.getElementById("feedback");
+
+    if (userInput === currentWord) {
+        feedback.textContent = "Correct!";
+        feedback.style.color = "green";
+        score++;
+        document.getElementById("score").textContent = score;
+
+        // Play correct sound
+        let audio = new Audio("sounds/correct.mp3");
+        audio.play();
+
+        // Update high score
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem("highScore", highScore);
+            document.getElementById("high-score").textContent = highScore;
+        }
+    } else {
+        feedback.textContent = "Incorrect, try again!";
+        feedback.style.color = "red";
+
+        // Play incorrect sound
+        let audio = new Audio("sounds/incorrect.mp3");
+        audio.play();
+    }
+});
